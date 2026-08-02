@@ -520,8 +520,22 @@ from graph.orchestrator import build_graph, build_classifier
 from graph.memory import load_history, append_turn
 from tools.llm import get_llm
 
-_llm = get_llm()
-_graph = build_graph(llm=_llm, classifier=build_classifier(_llm))
+_llm = None
+_graph = None
+
+
+def _get_llm():
+    global _llm
+    if _llm is None:
+        _llm = get_llm()
+    return _llm
+
+
+def _get_graph():
+    global _graph
+    if _graph is None:
+        _graph = build_graph(llm=_get_llm(), classifier=build_classifier(_get_llm()))
+    return _graph
 
 
 @app.route('/chat', methods=['POST'])
@@ -534,7 +548,7 @@ def chat():
 
     history = load_history(session_id)
     messages = history + [{'role': 'user', 'content': user_message}]
-    result = _graph.invoke({'messages': messages, 'session_id': session_id})
+    result = _get_graph().invoke({'messages': messages, 'session_id': session_id})
 
     response = None
     agent_name = None
