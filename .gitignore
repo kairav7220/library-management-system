@@ -11,3 +11,9 @@ users/
 AGENTS.md
 books.py
 get_last_row.py
+
+# Agent system persistent data
+data/
+chroma_db/
+.vercel
+.env*

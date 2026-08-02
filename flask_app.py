@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
 from datetime import datetime
+from dotenv import load_dotenv
 import gspread
 import os
 import json
 from google.oauth2.service_account import Credentials
+
+load_dotenv()
 
 scope = [
     'https://spreadsheets.google.com/feeds',
@@ -510,6 +513,39 @@ def return_book_issue(row_num):
 
     issue_row = book_issue_worksheet.get(f'A{row_num}:I{row_num}')[0]
     return render_template('return_book_issue.html', issue=issue_row, row_num=row_num)
+
+# ─── AI Assistant (multi-agent) ──────────────────────────
+
+from graph.orchestrator import build_graph, build_classifier
+from graph.memory import load_history, append_turn
+from tools.llm import get_llm
+
+_llm = get_llm()
+_graph = build_graph(llm=_llm, classifier=build_classifier(_llm))
+
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    data = request.get_json(force=True, silent=True) or {}
+    user_message = (data.get('message') or '').strip()
+    session_id = data.get('session_id') or 'default'
+    if not user_message:
+        return jsonify({'response': 'Please type a message.'})
+
+    history = load_history(session_id)
+    messages = history + [{'role': 'user', 'content': user_message}]
+    result = _graph.invoke({'messages': messages, 'session_id': session_id})
+
+    response = None
+    agent_name = None
+    for m in result['messages']:
+        if m.type == 'ai' and m.content:
+            response = m.content
+            agent_name = m.name
+    response = response or 'I could not process that request.'
+
+    append_turn(session_id, user_message, agent_name, response, [])
+    return jsonify({'response': response, 'agent': agent_name})
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,44 @@
+<!-- Chat assistant (multi-agent) -->
+<button type="button" class="chat-fab" id="chatFab" aria-label="Ask the library">
+    <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+    <span class="chat-fab-label">Ask the library</span>
+</button>
+
+<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Library assistant chat" aria-hidden="true">
+    <header class="chat-head">
+        <div class="chat-head-mark" aria-hidden="true">
+            <i class="fa-solid fa-book-open"></i>
+        </div>
+        <div class="chat-head-text">
+            <h2>Reference Desk</h2>
+            <p>Librarians on duty</p>
+        </div>
+        <button type="button" class="chat-close" id="chatClose" aria-label="Close chat">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="chat-roster" aria-hidden="true">
+            <span class="chat-roster-item" data-agent="Library Director" title="Library Director"><i class="fa-solid fa-building-columns"></i></span>
+            <span class="chat-roster-item" data-agent="Catalog Librarian" title="Catalog Librarian"><i class="fa-solid fa-book"></i></span>
+            <span class="chat-roster-item" data-agent="Circulation Librarian" title="Circulation Librarian"><i class="fa-solid fa-repeat"></i></span>
+            <span class="chat-roster-item" data-agent="Membership Services" title="Membership Services"><i class="fa-solid fa-id-card"></i></span>
+            <span class="chat-roster-item" data-agent="Reference Librarian" title="Reference Librarian"><i class="fa-solid fa-magnifying-glass"></i></span>
+        </div>
+    </header>
+
+    <div class="chat-body" id="chatBody" role="log" aria-live="polite">
+        <div class="chat-greeting">
+            <p>Welcome to the Reference Desk.</p>
+            <p>Ask me to find a book, register a member, issue a book, or pull up library stats.</p>
+        </div>
+    </div>
+
+    <form class="chat-form" id="chatForm">
+        <input type="text" id="chatInput" placeholder="Message the library..." autocomplete="off" aria-label="Your message">
+        <button type="submit" class="chat-send" aria-label="Send message">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/chat.css') }}">
+<script src="{{ url_for('static', filename='js/chat.js') }}" defer></script>
