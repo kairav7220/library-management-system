@@ -1,43 +1,51 @@
 <!-- Chat assistant (multi-agent) -->
-<button type="button" class="chat-fab" id="chatFab" aria-label="Ask the library">
-    <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
-    <span class="chat-fab-label">Ask the library</span>
+<button type="button" class="launcher" id="launcher" onclick="openWidget()" aria-label="Ask the library">
+    <span class="stamp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5C4 5 7 4.5 9 5.5c1 .5 2 1.5 3 3 1-1.5 2-2.5 3-3 2-1 5-.5 7 1v13c-2-1.5-5-2-7-1-1 .5-2 1.5-3 3-1-1.5-2-2.5-3-3-2-1-5-.5-7 1z"/><path d="M12 8.5V21"/></svg>
+    </span>
+    Ask the Library
 </button>
 
-<div class="chat-panel" id="chatPanel" role="dialog" aria-label="Library assistant chat" aria-hidden="true">
-    <header class="chat-head">
-        <div class="chat-head-mark" aria-hidden="true">
-            <i class="fa-solid fa-book-open"></i>
-        </div>
-        <div class="chat-head-text">
-            <h2>Reference Desk</h2>
-            <p>Librarians on duty</p>
-        </div>
-        <button type="button" class="chat-close" id="chatClose" aria-label="Close chat">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="chat-roster" aria-hidden="true">
-            <span class="chat-roster-item" data-agent="Library Director" title="Library Director"><i class="fa-solid fa-building-columns"></i></span>
-            <span class="chat-roster-item" data-agent="Catalog Librarian" title="Catalog Librarian"><i class="fa-solid fa-book"></i></span>
-            <span class="chat-roster-item" data-agent="Circulation Librarian" title="Circulation Librarian"><i class="fa-solid fa-repeat"></i></span>
-            <span class="chat-roster-item" data-agent="Membership Services" title="Membership Services"><i class="fa-solid fa-id-card"></i></span>
-            <span class="chat-roster-item" data-agent="Reference Librarian" title="Reference Librarian"><i class="fa-solid fa-magnifying-glass"></i></span>
-        </div>
-    </header>
-
-    <div class="chat-body" id="chatBody" role="log" aria-live="polite">
-        <div class="chat-greeting">
-            <p>Welcome to the Reference Desk.</p>
-            <p>Ask me to find a book, register a member, issue a book, or pull up library stats.</p>
+<div class="widget" id="widget" role="dialog" aria-label="Library assistant chat" aria-hidden="true">
+    <div class="head">
+        <div class="head-row">
+            <div class="head-id">
+                <div class="head-mark">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5C4 5 7 4.5 9 5.5c1 .5 2 1.5 3 3 1-1.5 2-2.5 3-3 2-1 5-.5 7 1v13c-2-1.5-5-2-7-1-1 .5-2 1.5-3 3-1-1.5-2-2.5-3-3-2-1-5-.5-7 1z"/><path d="M12 8.5V21"/></svg>
+                </div>
+                <div>
+                    <p class="head-eyebrow">Reference Desk</p>
+                    <h1 class="head-title">Ask the Library</h1>
+                    <div class="head-status"><span class="dot"></span><span>Librarians on duty</span></div>
+                </div>
+            </div>
+            <button type="button" class="close-btn" onclick="closeWidget()" aria-label="Close chat">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
         </div>
     </div>
 
-    <form class="chat-form" id="chatForm">
-        <input type="text" id="chatInput" placeholder="Message the library..." autocomplete="off" aria-label="Your message">
-        <button type="submit" class="chat-send" aria-label="Send message">
-            <i class="fa-solid fa-paper-plane"></i>
+    <div class="thread" id="thread" role="log" aria-live="polite">
+        <div class="msg bot">
+            <span class="msg-label"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>Reference Librarian</span>
+            <div class="bubble">
+                Welcome to the Reference Desk. Ask me to find a book, register a member, issue a book, or pull up library stats.
+            </div>
+            <div class="chips">
+                <button type="button" class="chip" onclick="chipReply(this)">Recommend a sci-fi book</button>
+                <button type="button" class="chip" onclick="chipReply(this)">Which books are available?</button>
+                <button type="button" class="chip" onclick="chipReply(this)">Check my membership</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="composer">
+        <textarea id="input" rows="1" placeholder="Message the library…" autocomplete="off" aria-label="Your message" onkeydown="onKey(event)"></textarea>
+        <button type="button" class="send-btn" onclick="send()" aria-label="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 20 18-8L3 4v6l12 2-12 2z"/></svg>
         </button>
-    </form>
+    </div>
+    <p class="foot-note">Catalog data may take a moment to update</p>
 </div>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='styles/chat.css') }}">
