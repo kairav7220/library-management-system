@@ -1,7 +1,4 @@
 /* ── Library chat: "Ask the Library" ───────────────────────────── */
-/* Blue action color matches the app's primary UI (#5B8DEF) and its
-   palette: page #F5F7FA, panels white, success green on mint. */
-
 :root {
     --chat-page: #f5f7fa;
     --chat-panel: #ffffff;
@@ -56,6 +53,22 @@
 }
 .launcher .stamp svg { width: 16px; height: 16px; }
 .launcher.hidden { display: none; }
+.badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.45);
+}
 
 /* ---------- panel ---------- */
 .widget {
@@ -85,7 +98,7 @@
     pointer-events: auto;
 }
 
-/* header — bold blue, matches the site's primary action color */
+/* header */
 .head {
     position: relative;
     background: var(--chat-blue);
@@ -94,7 +107,7 @@
     flex-shrink: 0;
 }
 .head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.head-id { display: flex; align-items: center; gap: 10px; }
+.head-id { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
 .head-mark {
     width: 34px;
     height: 34px;
@@ -123,11 +136,11 @@
     letter-spacing: 0.1px;
     color: #ffffff;
 }
-.head-sub { font-size: 11.5px; color: rgba(255, 255, 255, 0.75); margin: 3px 0 0; }
 .head-status { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: #7fe0a8; }
 .head-status span { font-size: 10.5px; color: rgba(255, 255, 255, 0.75); }
-.close-btn {
+.head-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.action-btn {
     background: rgba(255, 255, 255, 0.14);
     border: none;
     color: #ffffff;
@@ -135,13 +148,12 @@
     height: 26px;
     border-radius: 7px;
     cursor: pointer;
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background 0.15s ease;
 }
-.close-btn:hover { background: rgba(255, 255, 255, 0.26); }
+.action-btn:hover { background: rgba(255, 255, 255, 0.26); }
 
 /* messages */
 .thread {
@@ -158,7 +170,7 @@
 .thread::-webkit-scrollbar { width: 6px; }
 .thread::-webkit-scrollbar-thumb { background: var(--chat-line); border-radius: 99px; }
 
-.msg { display: flex; flex-direction: column; max-width: 84%; }
+.msg { display: flex; flex-direction: column; max-width: 84%; position: relative; }
 .msg.bot { align-self: flex-start; }
 .msg.user { align-self: flex-end; align-items: flex-end; }
 
@@ -181,6 +193,7 @@
     line-height: 1.5;
     border-radius: 13px;
     word-break: break-word;
+    position: relative;
 }
 .msg.bot .bubble {
     background: #fff;
@@ -195,7 +208,36 @@
     border-top-right-radius: 4px;
 }
 
-/* Markdown text inside agent bubbles */
+/* Copy button on bot messages */
+.copy-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid var(--chat-line);
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, background 0.15s ease;
+    color: var(--chat-ink-soft);
+}
+.msg.bot:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { background: var(--chat-blue-tint); color: var(--chat-blue-deep); border-color: var(--chat-blue); }
+.copy-btn.copied { background: var(--chat-green-tint); color: var(--chat-green); border-color: var(--chat-green); }
+
+.timestamp {
+    font-size: 10px;
+    color: var(--chat-ink-soft);
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+/* Markdown text inside bubbles */
 .bubble strong { color: var(--chat-blue-deep); font-weight: 700; }
 .msg.user .bubble strong { color: #ffffff; }
 .bubble em { color: var(--chat-ink); }
@@ -203,14 +245,14 @@
 .bubble a { color: var(--chat-blue-deep); text-decoration: underline; }
 .bubble a:hover { color: var(--chat-blue); }
 .bubble code {
-    font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, monospace;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
     font-size: 0.85em;
     background: var(--chat-blue-tint);
     color: var(--chat-blue-deep);
     padding: 1px 5px;
     border-radius: 5px;
 }
-.msg.user .bubble code { background: rgba(255, 255, 255, 0.18); color: #ffffff; }
+.msg.user .bubble code { background: rgba(255,255,255, 0.18); color: #ffffff; }
 .bubble pre {
     margin: 8px 0 2px;
     padding: 10px 12px;
@@ -249,6 +291,8 @@
     border-top: 1px solid var(--chat-line);
     margin: 10px 0;
 }
+
+/* Tables */
 .table-wrap {
     overflow-x: auto;
     margin: 8px 0 2px;
@@ -292,22 +336,6 @@
     white-space: nowrap;
 }
 .status-badge svg { width: 9px; height: 9px; }
-
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-.chip {
-    border: 1px solid var(--chat-line);
-    background: #fff;
-    color: var(--chat-blue-deep);
-    font-size: 11.5px;
-    font-weight: 500;
-    padding: 6px 11px;
-    border-radius: 999px;
-    cursor: pointer;
-    font-family: "Source Sans 3", "Inter", -apple-system, sans-serif;
-    transition: background 0.15s ease, border-color 0.15s ease;
-}
-.chip:hover { background: var(--chat-blue-tint); border-color: var(--chat-blue); }
-.chip:focus-visible { outline: 2px solid var(--chat-blue); outline-offset: 1px; }
 
 .typing { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
 .typing span {
@@ -386,6 +414,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .widget, .launcher, .send-btn, .chip { transition: none; }
+    .widget, .launcher, .send-btn { transition: none; }
     .typing span { animation: none; opacity: 0.5; }
 }

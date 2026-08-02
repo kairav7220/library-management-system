@@ -3,6 +3,7 @@
     <span class="stamp">
         <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6.5C4 5 7 4.5 9 5.5c1 .5 2 1.5 3 3 1-1.5 2-2.5 3-3 2-1 5-.5 7 1v13c-2-1.5-5-2-7-1-1 .5-2 1.5-3 3-1-1.5-2-2.5-3-3-2-1-5-.5-7 1z"/><path d="M12 8.5V21"/></svg>
     </span>
+    <span class="badge" id="badge" hidden>0</span>
     Ask the Library
 </button>
 
@@ -19,22 +20,22 @@
                     <div class="head-status"><span class="dot"></span><span>Librarians on duty</span></div>
                 </div>
             </div>
-            <button type="button" class="close-btn" onclick="closeWidget()" aria-label="Close chat">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-            </button>
+            <div class="head-actions">
+                <button type="button" class="action-btn" id="resetBtn" onclick="resetChat()" aria-label="Start new chat" title="New chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+                <button type="button" class="action-btn" onclick="closeWidget()" aria-label="Close chat">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="thread" id="thread" role="log" aria-live="polite">
-        <div class="msg bot">
+        <div class="msg bot" id="greeting">
             <span class="msg-label"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="10"/></svg>Reference Librarian</span>
             <div class="bubble">
                 Welcome to the Reference Desk. Ask me to find a book, register a member, issue a book, or pull up library stats.
-            </div>
-            <div class="chips">
-                <button type="button" class="chip" onclick="chipReply(this)">Recommend a sci-fi book</button>
-                <button type="button" class="chip" onclick="chipReply(this)">Which books are available?</button>
-                <button type="button" class="chip" onclick="chipReply(this)">Check my membership</button>
             </div>
         </div>
     </div>
