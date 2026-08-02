@@ -7,7 +7,7 @@ if (!sessionId) {
     localStorage.setItem(SESSION_KEY, sessionId);
 }
 
-var widget, launcher, thread, input, sendBtn, badge, greeting;
+var widget, launcher, thread, input, sendBtn, badge, greeting, sessionList, sessionListBody;
 var busy = false;
 var unreadCount = 0;
 
@@ -19,6 +19,8 @@ function init() {
     sendBtn  = document.querySelector('.send-btn');
     badge    = document.getElementById('badge');
     greeting = document.getElementById('greeting');
+    sessionList     = document.getElementById('sessionList');
+    sessionListBody = document.getElementById('sessionListBody');
     if (!widget || !launcher || !thread || !input) return;
 
     input.addEventListener('input', function () {
@@ -26,7 +28,10 @@ function init() {
         input.style.height = Math.min(input.scrollHeight, 80) + 'px';
     });
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && widget.classList.contains('open')) closeWidget();
+        if (e.key === 'Escape' && widget.classList.contains('open')) {
+            if (sessionList && !sessionList.hidden) { hideSessions(); }
+            else { closeWidget(); }
+        }
     });
 }
 
@@ -238,6 +243,7 @@ function openWidget() {
     widget.classList.add('open');
     launcher.classList.add('hidden');
     widget.setAttribute('aria-hidden', 'false');
+    hideSessions();
     unreadCount = 0;
     updateBadge();
     input.focus();
@@ -280,6 +286,75 @@ function resetChat() {
     showGreeting();
     unreadCount = 0;
     updateBadge();
+    hideSessions();
+    input.focus();
+}
+
+/* ── session list (history) ──────────────────────────────────────── */
+
+function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d)) return '';
+    var today = new Date();
+    var sameDay = d.toDateString() === today.toDateString();
+    var h = d.getHours(), m = d.getMinutes(), ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    var time = h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
+    if (sameDay) return 'Today ' + time;
+    var yest = new Date(today);
+    yest.setDate(today.getDate() - 1);
+    if (d.toDateString() === yest.toDateString()) return 'Yesterday ' + time;
+    return d.toLocaleDateString() + ' ' + time;
+}
+
+function showSessions() {
+    if (!sessionList || !sessionListBody) return;
+    sessionListBody.innerHTML = '<div class="session-empty">Loading conversations…</div>';
+    thread.style.display = 'none';
+    sessionList.hidden = false;
+
+    fetch('/chat/sessions')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            var sessions = data.sessions || [];
+            if (!sessions.length) {
+                sessionListBody.innerHTML = '<div class="session-empty">No past conversations yet.</div>';
+                return;
+            }
+            sessionListBody.innerHTML = '';
+            sessions.forEach(function (s) {
+                var item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'session-item' + (s.session_id === sessionId ? ' current' : '');
+                var title = escapeHtml(s.title || 'New chat');
+                var meta = fmtDate(s.last_active) || '';
+                item.innerHTML = '<span class="session-title">' + title + '</span>' +
+                    (meta ? '<span class="session-meta">' + meta + '</span>' : '');
+                item.addEventListener('click', function () { loadSession(s.session_id); });
+                sessionListBody.appendChild(item);
+            });
+        })
+        .catch(function () {
+            sessionListBody.innerHTML = '<div class="session-empty">Could not load conversations.</div>';
+        });
+}
+
+function hideSessions() {
+    if (!sessionList) return;
+    sessionList.hidden = true;
+    thread.style.display = '';
+}
+
+function loadSession(id) {
+    sessionId = id;
+    localStorage.setItem(SESSION_KEY, sessionId);
+    unreadCount = 0;
+    updateBadge();
+    thread.innerHTML = '';
+    hideSessions();
+    showGreeting();
+    loadHistory();
     input.focus();
 }
 
@@ -344,3 +419,6 @@ window.chipReply    = chipReply;
 window.onKey        = onKey;
 window.resetChat    = resetChat;
 window.copyBubble   = copyBubble;
+window.showSessions = showSessions;
+window.hideSessions = hideSessions;
+window.loadSession  = loadSession;

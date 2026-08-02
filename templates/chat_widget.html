@@ -21,8 +21,11 @@
                 </div>
             </div>
             <div class="head-actions">
-                <button type="button" class="action-btn" id="resetBtn" onclick="resetChat()" aria-label="Start new chat" title="New chat">
+                <button type="button" class="action-btn" id="historyBtn" onclick="showSessions()" aria-label="Chat history" title="History">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
+                <button type="button" class="action-btn" id="resetBtn" onclick="resetChat()" aria-label="Start new chat" title="New chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                 </button>
                 <button type="button" class="action-btn" onclick="closeWidget()" aria-label="Close chat">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -38,6 +41,16 @@
                 Welcome to the Reference Desk. Ask me to find a book, register a member, issue a book, or pull up library stats.
             </div>
         </div>
+    </div>
+
+    <div class="session-list" id="sessionList" hidden>
+        <div class="session-list-head">
+            <button type="button" class="back-btn" onclick="hideSessions()" aria-label="Back to chat">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <span>Chat history</span>
+        </div>
+        <div class="session-list-body" id="sessionListBody"></div>
     </div>
 
     <div class="composer">

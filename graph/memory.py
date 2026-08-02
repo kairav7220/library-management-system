@@ -145,6 +145,68 @@ def get_session_turns(session_id: str, limit: int = 50) -> list[dict]:
     ]
 
 
+def list_sessions(limit: int = 20) -> list[dict]:
+    """Return past chat sessions, newest first, auto-titled from each
+    session's first user message."""
+    conn = _connect()
+    try:
+        if DATABASE_URL:
+            from psycopg.rows import dict_row
+
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT
+                        session_id,
+                        (SELECT user_message FROM chat_history
+                         WHERE session_id = h.session_id AND user_message IS NOT NULL
+                         ORDER BY id ASC LIMIT 1) AS title,
+                        MIN(created_at) AS created_at,
+                        MAX(created_at) AS last_active
+                    FROM chat_history h
+                    GROUP BY session_id
+                    ORDER BY last_active DESC
+                    LIMIT %s
+                    """,
+                    (limit,),
+                )
+                rows = cur.fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT
+                    session_id,
+                    (SELECT user_message FROM chat_history
+                     WHERE session_id = h.session_id AND user_message IS NOT NULL
+                     ORDER BY rowid ASC LIMIT 1) AS title,
+                    MIN(created_at) AS created_at,
+                    MAX(created_at) AS last_active
+                FROM chat_history h
+                GROUP BY session_id
+                ORDER BY last_active DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+    finally:
+        conn.close()
+
+    sessions = []
+    for row in rows:
+        title = row["title"] or "New chat"
+        if len(title) > 30:
+            title = title[:30] + "..."
+        sessions.append(
+            {
+                "session_id": row["session_id"],
+                "title": title,
+                "created_at": row["created_at"],
+                "last_active": row["last_active"],
+            }
+        )
+    return sessions
+
+
 def append_turn(    session_id: str,
     user_message: str,
     agent_name: str,
