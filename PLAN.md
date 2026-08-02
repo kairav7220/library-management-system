@@ -453,30 +453,44 @@ Director → Catalog Agent
 
 ## 9. Chat UI
 
-### 9.1 Design
+### 9.1 Design (built)
 
-- **Floating icon** in bottom-right corner of every page
-- Click → expands into a **chat modal/panel**
-- Agent responses show **agent name + icon** (e.g., "📚 Catalog Librarian")
-- Typing indicator while agent processes
-- Conversation history within the session
+- **Floating launcher** (blue `#5B8DEF` pill, bottom-right of every page) →
+  opens a 376px panel with header, message thread, and composer
+- Palette matches the app: blue `#5B8DEF` primary, page `#F5F7FA`, white
+  panels, success green `#3A9D6A` on mint `#E8F8F0`, muted slate `#8896A7`
+- Agent responses rendered as **markdown** client-side (HTML is escaped
+  first): `**bold**`, *italic*, `inline code`, fenced code, headings, lists,
+  blockquotes, links, and pipe **tables** → real `<table>` in a horizontally
+  scrollable `.table-wrap` (headers never wrap vertically)
+- **Typing indicator** while the agent works
+- **Copy button** on bot messages (appears on hover; shows a check on copy)
+- **Timestamps** under every message ("3:45 PM")
+- **Unread badge** on the launcher when the widget is closed and a response
+  arrives (clears on open)
+- **New chat** button (header): clears the thread, generates a fresh
+  session id
+- **History button** (header): lists past sessions via `GET /chat/sessions`,
+  each auto-titled from its first user message (truncated to ~30 chars);
+  click a session to resume it
+- Session id persisted in `localStorage` (`lib_chat_session`), so a reload
+  keeps the same conversation
 
-### 9.2 Template
+### 9.2 Files
 
 ```
-templates/chat_widget.html   ← The floating icon + modal HTML
-static/styles/chat.css       ← Chat-specific styles
+templates/chat_widget.html   ← launcher + panel + session-list overlay (included in 11 pages)
+static/styles/chat.css       ← widget styles + markdown/table styling
+static/js/chat.js            ← open/close, markdown renderer, /chat fetch,
+                               history load, copy, badge, timestamps, session list
 ```
 
-### 9.3 Flask Route
+### 9.3 Flask Routes
 
 ```python
-@app.route('/chat', methods=['POST'])
-def chat():
-    user_message = request.json.get('message')
-    # Run through LangGraph
-    result = graph.invoke({"messages": [user_message]})
-    return jsonify({"response": result["messages"][-1].content})
+@app.route('/chat', methods=['POST'])            # run through LangGraph → {response, agent}
+@app.route('/chat/history', methods=['GET'])     # ?session_id= → {turns: [...]}
+@app.route('/chat/sessions', methods=['GET'])    # → {sessions: [{session_id, title, created_at, last_active}]}
 ```
 
 ---
@@ -635,7 +649,7 @@ DATABASE_URL=...                    # Neon Postgres (chat memory); optional — 
 | 4 | **RAG scope?** | **Books only.** Not policies/FAQs. | Only the book catalog is indexed and semantically searched (`search_books_rag`). |
 | 5 | **System meta-knowledge?** | **Yes.** Agents know how the app works. | Agents get docs on the sheet schemas, workflows, and how to use tools. |
 | 6 | **LangSmith?** | **Yes, from start.** | Set up tracing + observability in Phase 1. Add API key. |
-| 7 | **Chat UI ownership?** | **Agent-owned.** Owner gives no design direction. | Agent designs the chat widget; owner reviews the result. |
+| 7 | **Chat UI ownership?** | **Owner-provided design.** | Owner supplied the blue-themed widget; agent integrated it, wired the backend, and added markdown/UX features. |
 | 8 | **RAG reindexing?** | **Automatic, deterministic.** | `add_book`/`update_book`/`delete_book` rebuild the index; no LLM-trusted reindex step. |
 
 ---
@@ -649,6 +663,9 @@ DATABASE_URL=...                    # Neon Postgres (chat memory); optional — 
 | 3 | Update PLAN.md (this section) | Done |
 | 4 | Vercel persistence for memory + RAG | **Done** — `graph/memory.py` uses Neon Postgres (`DATABASE_URL` in `.env`) when present, falls back to SQLite locally. `rag/embedder.py` stores embeddings in a `book_embeddings` table (pgvector, Neon) when `DATABASE_URL` is set, falls back to local ChromaDB. Both verified end-to-end via `/chat`. |
 | 5 | RAG index persistence on serverless | **Done** — embeddings live in Neon Postgres `book_embeddings` table via pgvector extension + `pgvector` Python package. Auto-reindex verified (add/delete → search reflects immediately). |
+| 6 | Chat widget redesign + markdown rendering | **Done** — owner-provided blue `#5B8DEF` design integrated (launcher + panel). Responses rendered as markdown client-side (bold, tables, lists, code, headings); HTML escaped before transform. Tables render in a scrollable wrapper instead of compressing vertically. |
+| 7 | Chat widget UX features | **Done** — copy button on bot messages, timestamps, unread badge on launcher, reset/"new chat" button. Suggestion chips removed at owner's request. |
+| 8 | Chat history / resume sessions | **Done** — `GET /chat/sessions` lists sessions auto-titled from their first user message (truncated ~30 chars), newest first; history button in the widget opens the list; clicking a session loads its turns and continues it. |
 
 ---
 
