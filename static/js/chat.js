@@ -28,6 +28,18 @@
         'Reference Librarian': 'fa-magnifying-glass'
     };
 
+    function loadHistory() {
+        fetch('/chat/history?session_id=' + encodeURIComponent(sessionId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                (data.turns || []).forEach(function (t) {
+                    if (t.user_message) addBubble(t.user_message, 'user');
+                    if (t.agent_response) addBubble(t.agent_response, 'agent', t.agent_name || 'Librarian');
+                });
+            })
+            .catch(function () { /* history is best-effort */ });
+    }
+
     function setOpen(open) {
         panel.classList.toggle('is-open', open);
         fab.classList.toggle('is-open', open);
@@ -35,6 +47,7 @@
         if (open) {
             input.focus();
             scrollBottom();
+            loadHistory();
         } else {
             input.blur();
         }

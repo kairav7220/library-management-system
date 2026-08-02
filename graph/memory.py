@@ -106,8 +106,46 @@ def load_history(session_id: str, limit: int = 20) -> list:
     return messages
 
 
-def append_turn(
-    session_id: str,
+def get_session_turns(session_id: str, limit: int = 50) -> list[dict]:
+    """Return stored turns (user_message, agent_name, agent_response) for a
+    session, oldest first, for rendering chat history in the UI."""
+    conn = _connect()
+    try:
+        if DATABASE_URL:
+            from psycopg.rows import dict_row
+
+            with conn.cursor(row_factory=dict_row) as cur:
+                cur.execute(
+                    """
+                    SELECT user_message, agent_name, agent_response FROM chat_history
+                    WHERE session_id = %s
+                    ORDER BY id DESC LIMIT %s
+                    """,
+                    (session_id, limit),
+                )
+                rows = cur.fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT user_message, agent_name, agent_response FROM chat_history
+                WHERE session_id = ?
+                ORDER BY rowid DESC LIMIT ?
+                """,
+                (session_id, limit),
+            ).fetchall()
+    finally:
+        conn.close()
+    return [
+        {
+            "user_message": row["user_message"],
+            "agent_name": row["agent_name"],
+            "agent_response": row["agent_response"],
+        }
+        for row in reversed(rows)
+    ]
+
+
+def append_turn(    session_id: str,
     user_message: str,
     agent_name: str,
     agent_response: str,
