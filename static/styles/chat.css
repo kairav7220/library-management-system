@@ -249,18 +249,27 @@
     border-top: 1px solid var(--chat-line);
     margin: 10px 0;
 }
-.bubble table {
+.table-wrap {
+    overflow-x: auto;
     margin: 8px 0 2px;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid var(--chat-line);
+    background: #fff;
+}
+.bubble table {
     border-collapse: collapse;
-    width: 100%;
+    min-width: 100%;
     font-size: 12.5px;
     line-height: 1.45;
+    white-space: nowrap;
 }
 .bubble th, .bubble td {
     border: 1px solid var(--chat-line);
-    padding: 5px 8px;
+    padding: 5px 10px;
     text-align: left;
     vertical-align: top;
+    white-space: nowrap;
 }
 .bubble th {
     background: var(--chat-blue-tint);

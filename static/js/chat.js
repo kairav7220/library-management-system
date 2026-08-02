@@ -102,7 +102,7 @@ if (!widget || !launcher || !thread || !input) {
                     tbody.push('<tr>' + cells.map(function (c) { return '<td>' + renderInline(c.trim()) + '</td>'; }).join('') + '</tr>');
                     i++;
                 }
-                buf.push('<table><thead>' + thead + '</thead><tbody>' + tbody.join('') + '</tbody></table>');
+                buf.push('<div class="table-wrap"><table><thead>' + thead + '</thead><tbody>' + tbody.join('') + '</tbody></table></div>');
                 continue;
             }
 
