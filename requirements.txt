@@ -11,7 +11,5 @@ langgraph
 langsmith
 langchain-core
 langchain-mistralai
-chromadb
-sentence-transformers
 psycopg[binary]
 pgvector

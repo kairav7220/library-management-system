@@ -9,8 +9,8 @@ SHEET = "Book Table"
 
 
 def _reindex_after():
-    """Rebuild the ChromaDB book index after a write. Best-effort: never
-    fails the underlying write if indexing has a hiccup."""
+    """Rebuild the semantic book index (pgvector) after a write.
+    Best-effort: never fails the underlying write if indexing hiccups."""
     try:
         from rag.embedder import index_all
 

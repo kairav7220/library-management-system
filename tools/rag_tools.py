@@ -1,4 +1,4 @@
-"""RAG search tools — semantic search over books (pgvector or ChromaDB)."""
+"""RAG search tools — semantic search over books via pgvector."""
 
 from langchain_core.tools import tool
 
