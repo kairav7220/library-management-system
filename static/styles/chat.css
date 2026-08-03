@@ -176,6 +176,7 @@
 .thread {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px;
     background: var(--lc-surface);
     display: flex;
@@ -187,10 +188,10 @@
 .thread::-webkit-scrollbar { width: 6px; }
 .thread::-webkit-scrollbar-thumb { background: var(--lc-outline-variant); border-radius: 99px; }
 
-.msg { display: flex; flex-direction: column; max-width: 85%; }
+.msg { display: flex; flex-direction: column; max-width: 85%; min-width: 0; }
 .msg.bot { align-self: flex-start; align-items: flex-start; }
 .msg.user { align-self: flex-end; align-items: flex-end; }
-.msg-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; }
+.msg-row { display: flex; align-items: flex-end; gap: 8px; width: 100%; min-width: 0; }
 
 /* ── bubbles ──────────────────────────────────────────────────────── */
 .bubble {
@@ -202,6 +203,8 @@
     line-height: 20px;
     border-radius: 16px;
     word-break: break-word;
+    min-width: 0;
+    max-width: 100%;
 }
 .msg.bot .bubble {
     background: var(--lc-surface-container-lowest);
@@ -273,6 +276,7 @@
     border-radius: 8px;
     border: 1px solid var(--lc-outline-variant);
     background: var(--lc-surface-container-lowest);
+    max-width: 100%;
 }
 .bubble table {
     border-collapse: collapse;
