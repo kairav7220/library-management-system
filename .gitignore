@@ -17,3 +17,8 @@ data/
 chroma_db/
 .vercel
 .env*
+
+# Design reference files (local only)
+DESIGN.md
+code.html
+screen.png

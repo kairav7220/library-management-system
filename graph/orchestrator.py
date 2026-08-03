@@ -12,6 +12,7 @@ from typing import Literal
 from langchain_core.messages import BaseMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import Runnable
+from langgraph.config import get_stream_writer
 from langgraph.graph import START, END, StateGraph
 from pydantic import BaseModel, Field
 
@@ -90,8 +91,26 @@ def build_graph(llm=None, classifier=None):
     director = create_director_agent(llm)
 
     def _run(agent, name, state: AgentState) -> dict:
-        result = agent.invoke({"messages": _last_user_turn(state["messages"])})
-        return {"messages": result["messages"], "next": name}
+        messages = _last_user_turn(state["messages"])
+        final_messages = None
+        writer = get_stream_writer()
+        for mode, event in agent.stream(
+            {"messages": messages},
+            stream_mode=["messages", "updates"],
+        ):
+            if mode == "messages":
+                chunk, _meta = event
+                content = chunk.content if isinstance(chunk.content, str) else ""
+                if content and not getattr(chunk, "tool_call_chunks", None):
+                    try:
+                        writer({"delta": content})
+                    except Exception:
+                        pass
+            elif mode == "updates":
+                for _node, update in event.items():
+                    if isinstance(update, dict) and update.get("messages"):
+                        final_messages = update["messages"]
+        return {"messages": final_messages, "next": name}
 
     def run_catalog(state):
         return _run(catalog, "Catalog Librarian", state)

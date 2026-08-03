@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request, redirect, url_for
+from flask import Flask, jsonify, render_template, request, redirect, url_for, Response
 from datetime import datetime
 from dotenv import load_dotenv
 import gspread
@@ -579,6 +579,47 @@ def chat():
 
     append_turn(session_id, user_message, agent_name, response, [])
     return jsonify({'response': response, 'agent': agent_name})
+
+
+@app.route('/chat/stream', methods=['POST'])
+def chat_stream():
+    """SSE streaming endpoint. Emits JSON events:
+    {"type": "delta", "text": "..."} per token, then {"type": "done",
+    "response": "...", "agent": "..."}."""
+    data = request.get_json(force=True, silent=True) or {}
+    user_message = (data.get('message') or '').strip()
+    session_id = data.get('session_id') or 'default'
+    if not user_message:
+        return jsonify({'response': 'Please type a message.'})
+
+    history = load_history(session_id)
+    messages = history + [{'role': 'user', 'content': user_message}]
+
+    def generate():
+        try:
+            buf = []
+            agent_name = None
+            for mode, event in _get_graph().stream(
+                {'messages': messages, 'session_id': session_id},
+                stream_mode=['custom', 'updates'],
+            ):
+                if mode == 'custom':
+                    if isinstance(event, dict) and event.get('delta'):
+                        buf.append(event['delta'])
+                        yield 'data: ' + json.dumps({'type': 'delta', 'text': event['delta']}) + '\n\n'
+                elif mode == 'updates':
+                    for node, update in event.items():
+                        if isinstance(update, dict):
+                            if update.get('next'):
+                                agent_name = update['next']
+            response = ''.join(buf) or 'I could not process that request.'
+            append_turn(session_id, user_message, agent_name, response, [])
+            yield 'data: ' + json.dumps({'type': 'done', 'response': response, 'agent': agent_name}) + '\n\n'
+        except Exception as exc:
+            yield 'data: ' + json.dumps({'type': 'error', 'message': str(exc)}) + '\n\n'
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
 
 if __name__ == '__main__':
     app.run(debug=True)

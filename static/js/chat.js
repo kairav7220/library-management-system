@@ -161,8 +161,7 @@ function addMessage(role, html, agentName) {
     if (role === 'user') {
         wrap.innerHTML = bubble + timestamp;
     } else {
-        wrap.innerHTML = '<div class="msg-row">' + BOT_AVATAR + bubble +
-            '<button type="button" class="copy-btn" onclick="copyBubble(this)" title="Copy"><span class="material-symbols-outlined">content_copy</span></button></div>' +
+        wrap.innerHTML = '<div class="msg-row">' + BOT_AVATAR + bubble + '</div>' +
             timestamp;
     }
     thread.appendChild(wrap);
@@ -198,22 +197,6 @@ function removeTyping() {
 
 function scrollBottom() {
     thread.scrollTop = thread.scrollHeight;
-}
-
-/* ── copy button ─────────────────────────────────────────────────── */
-
-function copyBubble(btn) {
-    var bubble = btn.closest('.bubble');
-    if (!bubble) return;
-    var text = bubble.innerText.trim();
-    navigator.clipboard.writeText(text).then(function () {
-        btn.classList.add('copied');
-        btn.innerHTML = '<span class="material-symbols-outlined">check</span>';
-        setTimeout(function () {
-            btn.classList.remove('copied');
-            btn.innerHTML = '<span class="material-symbols-outlined">content_copy</span>';
-        }, 1200);
-    });
 }
 
 /* ── unread badge ─────────────────────────────────────────────────── */
@@ -389,7 +372,23 @@ function deleteSession(id, btn) {
         });
 }
 
-/* ── send ─────────────────────────────────────────────────────────── */
+/* ── send (streaming) ─────────────────────────────────────────────── */
+
+function parseSSE(chunk, handlers) {
+    var text = new TextDecoder().decode(chunk);
+    text.split('\n').forEach(function (line) {
+        line = line.replace(/\r$/, '');
+        if (line.indexOf('data: ') === 0) {
+            var payload = line.slice(6);
+            try {
+                var evt = JSON.parse(payload);
+                if (evt.type === 'delta' && evt.text) handlers.delta(evt.text);
+                else if (evt.type === 'done') handlers.done(evt);
+                else if (evt.type === 'error') handlers.error(new Error(evt.message || 'Stream error'));
+            } catch (e) {}
+        }
+    });
+}
 
 function send() {
     var text = input.value.trim();
@@ -401,28 +400,77 @@ function send() {
     if (sendBtn) sendBtn.disabled = true;
     showTyping();
 
-    fetch('/chat', {
+    var wrap = null;
+    var bubble = null;
+    var raw = '';
+    var agentName = null;
+    var finished = false;
+    var failed = false;
+
+    function finish() {
+        if (finished) return;
+        finished = true;
+        busy = false;
+        if (sendBtn) sendBtn.disabled = false;
+        removeTyping();
+        var html = raw ? renderMarkdown(raw) : (failed ? 'Sorry, I lost my train of thought. Please try again.' : 'I could not process that request.');
+        if (wrap && bubble) {
+            bubble.innerHTML = html;
+            bubble.classList.remove('streaming');
+        } else {
+            addMessage('bot', html, agentName);
+        }
+        if (bubble && raw) scrollBottom();
+        if (!widget.classList.contains('open')) {
+            unreadCount++;
+            updateBadge();
+        }
+        input.focus();
+    }
+
+    fetch('/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text, session_id: sessionId })
     })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
+        .then(function (r) {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.body.getReader();
+        })
+        .then(function (reader) {
             removeTyping();
-            addMessage('bot', renderMarkdown(data.response || 'I could not process that request.'), data.agent);
-            if (!widget.classList.contains('open')) {
-                unreadCount++;
-                updateBadge();
+            wrap = addMessage('bot', '', agentName);
+            bubble = wrap.querySelector('.bubble');
+            bubble.classList.add('streaming');
+            scrollBottom();
+
+            function pump() {
+                return reader.read().then(function (res) {
+                    if (res.done) { finish(); return; }
+                    parseSSE(res.value, {
+                        delta: function (t) {
+                            raw += t;
+                            bubble.textContent = raw;
+                            scrollBottom();
+                        },
+                        done: function (evt) {
+                            raw = evt.response || raw;
+                            agentName = evt.agent || null;
+                            finish();
+                        },
+                        error: function (e) {
+                            failed = true;
+                            finish();
+                        }
+                    });
+                    return pump();
+                });
             }
+            return pump();
         })
         .catch(function () {
-            removeTyping();
-            addMessage('bot', 'Sorry, I lost my train of thought. Please try again.');
-        })
-        .finally(function () {
-            busy = false;
-            if (sendBtn) sendBtn.disabled = false;
-            input.focus();
+            failed = true;
+            finish();
         });
 }
 
@@ -449,7 +497,6 @@ window.send          = send;
 window.chipReply     = chipReply;
 window.onKey         = onKey;
 window.resetChat     = resetChat;
-window.copyBubble    = copyBubble;
 window.showSessions  = showSessions;
 window.hideSessions  = hideSessions;
 window.loadSession   = loadSession;
