@@ -139,7 +139,7 @@
     background: var(--lc-primary-container);
     color: var(--lc-on-primary-container);
 }
-.avatar-bot .material-symbols-outlined { font-size: 14px; }
+.avatar-bot .material-symbols-outlined { font-size: 16px; }
 .headline-sm {
     margin: 0;
     font-family: var(--lc-font);

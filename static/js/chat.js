@@ -149,7 +149,7 @@ function renderMarkdown(text) {
 
 /* ── message building ────────────────────────────────────────────── */
 
-var BOT_AVATAR = '<div class="avatar avatar-bot"><span class="material-symbols-outlined">smart_toy</span></div>';
+var BOT_AVATAR = '<div class="avatar avatar-bot"><span class="material-symbols-outlined">menu_book</span></div>';
 
 function addMessage(role, html, agentName) {
     var wrap = document.createElement('div');
