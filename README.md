@@ -166,7 +166,6 @@ library-management-system/
 ├── flask_app.py                # Flask entry — CRUD routes + chat/SSE endpoints
 ├── vercel.json                 # Vercel serverless config
 ├── requirements.txt            # Python dependencies
-├── .env.example                # Environment variable template
 ├── .gitignore                  # Git ignore rules
 ├── agents/
 │   ├── __init__.py
