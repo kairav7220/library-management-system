@@ -162,34 +162,69 @@ python -m rag.embedder    # embeds books into pgvector book_embeddings
 ## Project Structure
 
 ```
-testing/
-├── flask_app.py            # Flask entry — CRUD routes + chat/SSE endpoints
-├── vercel.json             # Vercel serverless config
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment variable template
+library-management-system/
+├── flask_app.py                # Flask entry — CRUD routes + chat/SSE endpoints
+├── vercel.json                 # Vercel serverless config
+├── requirements.txt            # Python dependencies
+├── .env.example                # Environment variable template
+├── .gitignore                  # Git ignore rules
 ├── agents/
-│   ├── director_agent.py   # Library Director (reports, overviews)
-│   ├── catalog_agent.py    # Catalog Librarian (books, categories, genres)
-│   ├── circulation_agent.py# Circulation Librarian (issue/return/sell)
-│   ├── membership_agent.py # Membership Services (members, subscriptions)
-│   └── reference_agent.py  # Reference Librarian (read-only, RAG)
+│   ├── __init__.py
+│   ├── director_agent.py       # Library Director (reports, overviews)
+│   ├── catalog_agent.py        # Catalog Librarian (books, categories, genres)
+│   ├── circulation_agent.py    # Circulation Librarian (issue/return/sell)
+│   ├── membership_agent.py     # Membership Services (members, subscriptions)
+│   └── reference_agent.py      # Reference Librarian (read-only, RAG)
 ├── graph/
-│   ├── orchestrator.py     # StateGraph + intent classifier routing
-│   ├── subgraphs.py        # Continuation routing
-│   ├── memory.py           # Session persistence (Postgres/SQLite)
-│   └── state.py            # Graph state schema
+│   ├── __init__.py
+│   ├── orchestrator.py         # StateGraph + intent classifier routing
+│   ├── subgraphs.py            # Continuation routing
+│   ├── memory.py               # Session persistence (Postgres/SQLite)
+│   └── state.py                # Graph state schema
 ├── rag/
-│   ├── embedder.py         # pgvector indexing + semantic search
-│   ├── loader.py           # Book document loader
-│   └── config.py           # Embedding model config
+│   ├── __init__.py
+│   ├── embedder.py             # pgvector indexing + semantic search
+│   ├── loader.py               # Book document loader
+│   └── config.py               # Embedding model config
 ├── tools/
-│   ├── gsheets_client.py   # Shared Google Sheets client
-│   ├── llm.py              # Mistral LLM factory
-│   └── *_tools.py          # Agent tools (books, members, payments, …)
-├── templates/              # Jinja2 admin pages + chat_widget.html
-└── static/
-    ├── js/chat.js          # Streaming chat widget logic
-    └── styles/chat.css     # Material 3 styling
+│   ├── __init__.py
+│   ├── gsheets_client.py       # Shared Google Sheets client
+│   ├── llm.py                  # Mistral LLM factory
+│   ├── consult.py              # Agent consultation helpers
+│   ├── rag_tools.py            # RAG search tool
+│   ├── book.py                 # Book tools
+│   ├── book_cat.py             # Book category tools
+│   ├── book_genre.py           # Book genre tools
+│   ├── book_issue.py           # Book issue tools
+│   ├── book_sell.py            # Book sell tools
+│   ├── members.py              # Member tools
+│   ├── employees.py            # Employee tools
+│   ├── subscriptions.py        # Subscription tools
+│   ├── payment.py              # Payment tools
+│   └── users.py                # User tools
+├── templates/                  # Jinja2 admin pages
+│   ├── index.html              # Users page
+│   ├── books.html              # Books page
+│   ├── book_category.html      # Book category page
+│   ├── book_genre.html         # Book genre page
+│   ├── members.html            # Members page
+│   ├── employees.html          # Employees page
+│   ├── subscriptions.html      # Subscriptions page
+│   ├── payments.html           # Payments page
+│   ├── book_sell.html          # Book sell page
+│   ├── book_issue.html         # Book issue page
+│   ├── chat_widget.html        # Lumina Concierge chat widget
+│   ├── add_*.html              # Add forms
+│   ├── edit_*.html             # Edit forms
+│   ├── form.html               # Shared form template
+│   └── return_book_issue.html  # Book return form
+├── static/
+│   ├── js/
+│   │   └── chat.js             # Streaming chat widget logic
+│   └── styles/
+│       ├── chat.css            # Material 3 chat styling
+│       └── style.css           # Admin pages styling
+└── (legacy scripts)            # book.py, book_cat.py, members.py, …
 ```
 
 ## License
