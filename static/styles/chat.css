@@ -103,10 +103,6 @@
     transition: opacity 0.22s ease, transform 0.22s ease;
 }
 .widget.open { opacity: 1; transform: none; pointer-events: auto; }
-.widget.minimized { height: auto; }
-.widget.minimized .thread,
-.widget.minimized .composer,
-.widget.minimized .session-list { display: none; }
 
 /* ── header (glassmorphism) ───────────────────────────────────────── */
 .widget-head {
@@ -442,20 +438,50 @@
 }
 .session-item {
     width: 100%;
-    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 4px;
     border: 1px solid transparent;
     background: transparent;
     border-radius: 8px;
-    padding: 10px 12px;
-    cursor: pointer;
+    padding: 4px;
     font-family: var(--lc-font);
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
     transition: background 0.15s ease, border-color 0.15s ease;
 }
 .session-item:hover { background: var(--lc-surface-container-low); border-color: var(--lc-outline-variant); }
 .session-item.current { background: var(--lc-surface-container-low); border-color: var(--lc-primary); }
+.session-main {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 8px;
+    font-family: var(--lc-font);
+}
+.session-del {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--lc-outline);
+    cursor: pointer;
+    opacity: 0;
+    transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.session-item:hover .session-del { opacity: 1; }
+.session-del:hover { background: var(--lc-error-container); color: var(--lc-error); }
+.session-del:disabled { opacity: 0.4; cursor: default; }
+.session-del .material-symbols-outlined { font-size: 20px; }
 .session-item .session-title {
     font-size: 14px;
     font-weight: 500;
@@ -476,6 +502,9 @@
 @media (max-width: 480px) {
     .widget, .launcher { right: 16px; bottom: 16px; }
     .widget { width: 100%; max-width: calc(100vw - 32px); }
+}
+@media (hover: none) {
+    .session-del { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
     .widget, .launcher, .send-btn, .icon-btn, .copy-btn { transition: none; }

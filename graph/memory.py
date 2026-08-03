@@ -207,6 +207,30 @@ def list_sessions(limit: int = 20) -> list[dict]:
     return sessions
 
 
+def delete_session(session_id: str) -> int:
+    """Delete all stored turns for a session. Returns number of rows removed."""
+    conn = _connect()
+    try:
+        if DATABASE_URL:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "DELETE FROM chat_history WHERE session_id = %s",
+                    (session_id,),
+                )
+                deleted = cur.rowcount
+            conn.commit()
+        else:
+            cur = conn.execute(
+                "DELETE FROM chat_history WHERE session_id = ?",
+                (session_id,),
+            )
+            deleted = cur.rowcount
+            conn.commit()
+    finally:
+        conn.close()
+    return deleted
+
+
 def append_turn(    session_id: str,
     user_message: str,
     agent_name: str,

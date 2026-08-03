@@ -517,7 +517,7 @@ def return_book_issue(row_num):
 # ─── AI Assistant (multi-agent) ──────────────────────────
 
 from graph.orchestrator import build_graph, build_classifier
-from graph.memory import load_history, append_turn, get_session_turns, list_sessions
+from graph.memory import load_history, append_turn, get_session_turns, list_sessions, delete_session
 from tools.llm import get_llm
 
 _llm = None
@@ -549,6 +549,12 @@ def chat_history():
 def chat_sessions():
     sessions = list_sessions(limit=25)
     return jsonify({'sessions': sessions})
+
+
+@app.route('/chat/sessions/<session_id>', methods=['DELETE'])
+def chat_session_delete(session_id):
+    deleted = delete_session(session_id)
+    return jsonify({'deleted': deleted, 'session_id': session_id})
 
 
 @app.route('/chat', methods=['POST'])

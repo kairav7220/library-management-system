@@ -228,10 +228,9 @@ function updateBadge() {
     }
 }
 
-/* ── open / close / minimize ─────────────────────────────────────── */
+/* ── open / close ─────────────────────────────────────────────────── */
 
 function openWidget() {
-    widget.classList.remove('minimized');
     widget.classList.add('open');
     launcher.classList.add('hidden');
     widget.setAttribute('aria-hidden', 'false');
@@ -245,20 +244,9 @@ function openWidget() {
 
 function closeWidget() {
     widget.classList.remove('open');
-    widget.classList.remove('minimized');
     launcher.classList.remove('hidden');
     widget.setAttribute('aria-hidden', 'true');
     input.blur();
-}
-
-function toggleMinimize() {
-    if (!widget.classList.contains('open')) return;
-    widget.classList.toggle('minimized');
-    if (widget.classList.contains('minimized')) {
-        if (sessionList) hideSessions();
-    } else {
-        input.focus();
-    }
 }
 
 /* ── history ──────────────────────────────────────────────────────── */
@@ -313,7 +301,6 @@ function fmtDate(iso) {
 
 function showSessions() {
     if (!sessionList || !sessionListBody) return;
-    widget.classList.remove('minimized');
     sessionListBody.innerHTML = '<div class="session-empty">Loading conversations…</div>';
     thread.style.display = 'none';
     sessionList.hidden = false;
@@ -328,14 +315,31 @@ function showSessions() {
             }
             sessionListBody.innerHTML = '';
             sessions.forEach(function (s) {
-                var item = document.createElement('button');
-                item.type = 'button';
+                var item = document.createElement('div');
                 item.className = 'session-item' + (s.session_id === sessionId ? ' current' : '');
+
+                var main = document.createElement('button');
+                main.type = 'button';
+                main.className = 'session-main';
                 var title = escapeHtml(s.title || 'New chat');
                 var meta = fmtDate(s.last_active) || '';
-                item.innerHTML = '<span class="session-title">' + title + '</span>' +
+                main.innerHTML = '<span class="session-title">' + title + '</span>' +
                     (meta ? '<span class="session-meta">' + meta + '</span>' : '');
-                item.addEventListener('click', function () { loadSession(s.session_id); });
+                main.addEventListener('click', function () { loadSession(s.session_id); });
+
+                var del = document.createElement('button');
+                del.type = 'button';
+                del.className = 'session-del';
+                del.title = 'Delete conversation';
+                del.setAttribute('aria-label', 'Delete conversation');
+                del.innerHTML = '<span class="material-symbols-outlined">delete</span>';
+                del.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    deleteSession(s.session_id, del);
+                });
+
+                item.appendChild(main);
+                item.appendChild(del);
                 sessionListBody.appendChild(item);
             });
         })
@@ -360,6 +364,29 @@ function loadSession(id) {
     showGreeting();
     loadHistory();
     input.focus();
+}
+
+function deleteSession(id, btn) {
+    if (!btn) return;
+    btn.classList.add('busy');
+    btn.disabled = true;
+    fetch('/chat/sessions/' + encodeURIComponent(id), { method: 'DELETE' })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            var item = btn.closest('.session-item');
+            if (item) item.remove();
+            if (id === sessionId) {
+                sessionId = 'sess-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+                localStorage.setItem(SESSION_KEY, sessionId);
+            }
+            if (!sessionListBody.querySelector('.session-item')) {
+                sessionListBody.innerHTML = '<div class="session-empty">No past conversations yet.</div>';
+            }
+        })
+        .catch(function () {
+            btn.classList.remove('busy');
+            btn.disabled = false;
+        });
 }
 
 /* ── send ─────────────────────────────────────────────────────────── */
@@ -418,7 +445,6 @@ if (document.readyState === 'loading') {
 }
 window.openWidget    = openWidget;
 window.closeWidget   = closeWidget;
-window.toggleMinimize = toggleMinimize;
 window.send          = send;
 window.chipReply     = chipReply;
 window.onKey         = onKey;
@@ -427,3 +453,4 @@ window.copyBubble    = copyBubble;
 window.showSessions  = showSessions;
 window.hideSessions  = hideSessions;
 window.loadSession   = loadSession;
+window.deleteSession = deleteSession;
