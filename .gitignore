@@ -16,7 +16,8 @@ get_last_row.py
 data/
 chroma_db/
 .vercel
-.env*
+.env
+!.env.example
 
 # Design reference files (local only)
 DESIGN.md
