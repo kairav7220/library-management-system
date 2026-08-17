@@ -42,9 +42,10 @@ Read the user's latest message and decide which librarian should handle it.
 - Membership Services: registering members or employees, subscriptions,
   payments.
 - Reference Librarian: finding books about a topic, recommendations, questions
-  about the collection (read-only).
-- Library Director: statistics, reports, overviews, greetings, ambiguous or
-  out-of-scope requests.
+  about specific books (read-only). Does NOT handle counts or totals.
+- Library Director: how many / total / count queries, statistics, reports,
+  overviews, greetings, ambiguous or out-of-scope requests. Any question
+  asking for a number or summary goes here.
 
 Conversation so far:
 {history}
