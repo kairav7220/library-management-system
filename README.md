@@ -90,8 +90,8 @@ flowchart LR
 ## Quick Start
 
 ```bash
-git clone https://github.com/kairav7220/testing.git
-cd testing
+git clone https://github.com/kairav7220/library-management-system.git
+cd library-management-system
 python -m venv .venv
 .venv\Scripts\activate        # Windows
 pip install -r requirements.txt
