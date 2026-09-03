@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=Library%20Management%20System&fontSize=50&fontAlignY=35&desc=Lumina%20Concierge%20%E2%80%94%20Multi-Agent%20AI%20Library%20Assistant&descAlignY=55" />
+  <a href="https://library-management-system-mi3rrhf7z-kairav.vercel.app/" target="_blank">
+    <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=Library%20Management%20System&fontSize=50&fontAlignY=35&desc=Lumina%20Concierge%20%E2%80%94%20Multi-Agent%20AI%20Library%20Assistant&descAlignY=55" />
+  </a>
 </p>
 
 <p align="center">
@@ -90,8 +92,8 @@ flowchart LR
 ## Quick Start
 
 ```bash
-git clone https://github.com/kairav7220/testing.git
-cd testing
+git clone https://github.com/kairav7220/library-management-system.git
+cd library-management-system
 python -m venv .venv
 .venv\Scripts\activate        # Windows
 pip install -r requirements.txt
