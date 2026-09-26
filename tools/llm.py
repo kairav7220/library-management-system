@@ -9,7 +9,7 @@ load_dotenv()
 def get_llm() -> ChatMistralAI:
     return ChatMistralAI(
         api_key=os.environ.get("MISTRAL_API_KEY"),
-        model="open-mistral-7b",
+        model="ministral-8b-2512",
         temperature=0.1,
     )
 
